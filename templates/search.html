@@ -1,0 +1,45 @@
+{{define "content"}}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" action="/search">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Search for posts..." value="{{.Query}}">
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{if .Query}}
+            <h3 class="mb-3">Search Results for "{{.Query}}"</h3>
+            
+            {{if .Posts}}
+                <p>Found {{.ResultCount}} result(s)</p>
+                
+                {{range .Posts}}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{.Title}}</h5>
+                        <p class="card-text">{{.Content}}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Posted by <a href="/user/{{.AuthorName}}">{{.AuthorName}}</a> on {{.CreatedAt}}</small>
+                            <a href="/post/{{.ID}}" class="btn btn-primary btn-sm">Read More</a>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+            {{else}}
+                <div class="alert alert-info">
+                    No posts found matching your search query.
+                </div>
+            {{end}}
+        {{else}}
+            <div class="alert alert-info">
+                Enter a search term to find posts.
+            </div>
+        {{end}}
+    </div>
+</div>
+{{end}} 

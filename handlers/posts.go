@@ -53,10 +53,21 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.ExecuteTemplate(w, "create-post.html", nil)
+	isAuthenticated, _ := session.Values["authenticated"].(bool)
+	err := templates.ExecuteTemplate(w, "create-post.html", map[string]interface{}{
+		"IsAuthenticated": isAuthenticated,
+		"PageID":          "create-post",
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func ViewPostHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session-name")
+	isAuthenticated, _ := session.Values["authenticated"].(bool)
+
 	vars := mux.Vars(r)
 	postID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
@@ -99,7 +110,21 @@ func ViewPostHandler(w http.ResponseWriter, r *http.Request) {
 		post.Comments = append(post.Comments, comment)
 	}
 
-	templates.ExecuteTemplate(w, "view-post.html", post)
+	err = templates.ExecuteTemplate(w, "view-post.html", map[string]interface{}{
+		"IsAuthenticated": isAuthenticated,
+		"PageID":          "view-post",
+		"ID":              post.ID,
+		"Title":           post.Title,
+		"Content":         post.Content,
+		"AuthorID":        post.AuthorID,
+		"AuthorName":      post.AuthorName,
+		"CreatedAt":       post.CreatedAt,
+		"Comments":        post.Comments,
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
