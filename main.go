@@ -94,6 +94,7 @@ func main() {
 	r.HandleFunc("/create-post", createPostHandler).Methods("GET", "POST")
 	r.HandleFunc("/post/{id:[0-9]+}", viewPostHandler).Methods("GET")
 	r.HandleFunc("/post/{id:[0-9]+}/comment", addCommentHandler).Methods("POST")
+	r.HandleFunc("/search", searchHandler).Methods("GET", "POST")
 
 	fmt.Println("Server starting on :8080...")
 	log.Fatal(http.ListenAndServe(":8080", r))
@@ -141,4 +142,47 @@ type Post struct {
 	Content    string
 	AuthorName string
 	CreatedAt  string
+}
+
+func searchHandler(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("q")
+	if r.Method == "POST" {
+		r.ParseForm()
+		query = r.Form.Get("q")
+	}
+
+	if query == "" {
+		templates.ExecuteTemplate(w, "search.html", nil)
+		return
+	}
+
+	rows, err := db.Query(`
+		SELECT p.id, p.title, p.content, p.created_at, u.username
+		FROM posts p
+		JOIN users u ON p.author_id = u.id
+		WHERE p.title LIKE ? OR p.content LIKE ?
+		ORDER BY p.created_at DESC
+	`, "%"+query+"%", "%"+query+"%")
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var results []Post
+	for rows.Next() {
+		var p Post
+		err := rows.Scan(&p.ID, &p.Title, &p.Content, &p.CreatedAt, &p.AuthorName)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		results = append(results, p)
+	}
+
+	templates.ExecuteTemplate(w, "search.html", map[string]interface{}{
+		"Query":   query,
+		"Results": results,
+	})
 }
