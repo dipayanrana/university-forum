@@ -49,7 +49,14 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.ExecuteTemplate(w, "register.html", nil)
+	err := templates.ExecuteTemplate(w, "register.html", map[string]interface{}{
+		"IsAuthenticated": false,
+		"PageID":          "register",
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +91,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.ExecuteTemplate(w, "login.html", nil)
+	err := templates.ExecuteTemplate(w, "login.html", map[string]interface{}{
+		"IsAuthenticated": false,
+		"PageID":          "login",
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
