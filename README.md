@@ -7,6 +7,7 @@ A modern web-based discussion forum built specifically for university communitie
 - User Authentication (Register/Login)
 - Create and View Discussions
 - Comment System
+- Search Functionality
 - Responsive Design
 - Modern UI with Bootstrap
 - SQLite Database
@@ -62,7 +63,8 @@ university-forum/
 │   ├── login.html      # Login page
 │   ├── register.html   # Registration page
 │   ├── create-post.html# Create post page
-│   └── view-post.html  # View post page
+│   ├── view-post.html  # View post page
+│   └── search.html     # Search page
 └── forum.db           # SQLite database
 ```
 
